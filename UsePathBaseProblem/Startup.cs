@@ -31,7 +31,6 @@ namespace UsePathBaseProblem
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UsePathBase(new PathString("/foo"));
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -53,15 +52,32 @@ namespace UsePathBaseProblem
                     pattern: "{controller}/{action=Index}/{id?}");
             });
 
-            app.UseSpa(spa =>
-            {
-                spa.Options.SourcePath = "ClientApp";
-
-                if (env.IsDevelopment())
+            string spaPath = "/foo";
+            app.Map(spaPath, appBuilder => {
+                appBuilder.UseSpa(spa =>
                 {
-                    spa.UseReactDevelopmentServer(npmScript: "start");
-                }
+                    spa.Options.DefaultPage = spaPath + "/index.html";
+                    spa.Options.DefaultPageStaticFileOptions = new StaticFileOptions
+                    {
+                        RequestPath = spaPath,
+                    };
+                    spa.Options.SourcePath = "ClientApp";
+                    if (env.IsDevelopment())
+                    {
+                        spa.UseReactDevelopmentServer(npmScript: "start");
+                    }
+                });
             });
+
+            //app.UseSpa(spa =>
+            //{
+            //    spa.Options.SourcePath = "ClientApp";
+
+            //    if (env.IsDevelopment())
+            //    {
+            //        spa.UseReactDevelopmentServer(npmScript: "start");
+            //    }
+            //});
         }
     }
 }
